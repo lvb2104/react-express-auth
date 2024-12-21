@@ -37,7 +37,7 @@ function App() {
                 throw Error(res.statusText);
             })
             .then((data) => {
-                console.log(data);
+                localStorage.setItem('token', data.token);
             })
             .catch((err) => {
                 if (err.message === 'Unauthorized') {
@@ -51,6 +51,9 @@ function App() {
     useEffect(() => {
         fetch(`${baseApi}/auth/me`, {
             credentials: 'include',
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
         })
             .then((res) => res.json())
             .then((me) => setUser(me));
@@ -59,7 +62,7 @@ function App() {
     return (
         <div>
             {user ? (
-                <p>Welcome, {user.name}</p>
+                <h1>Welcome {user.name}</h1>
             ) : (
                 <>
                     {/* send data to backend */}
@@ -86,7 +89,7 @@ function App() {
                         <button type='submit'>Login</button>
                     </form>
                 </>
-            )}
+            )} 
         </div>
     );
 }

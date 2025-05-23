@@ -79,17 +79,23 @@ app.post('/api/auth/login', (req, res) => {
         sub: user.id,
         exp: Date.now() + 1000 * 60 * 60,
     };
+
+    // 1. convert from object to json and then convert to base4url
     const encodedHeader = Buffer.from(JSON.stringify(header))
         .toString('base64')
         .replace(/=/g, '');
     const encodedPayload = Buffer.from(JSON.stringify(payload))
         .toString('base64')
         .replace(/=/g, '');
+
+    // 2. create <header>.<payload>
     const tokenData = encodedHeader + '.' + encodedPayload;
 
+    // 3. create signature with recipe HMACSHA256(base64UrlEncode(header) + "." + base64UrlEncode(payload), secret)
     const hmac = crypto.createHmac('sha256', secretKey);
     const signature = hmac.update(tokenData).digest('base64url');
 
+    // 4. <header>.<payload>.<signature>
     const token = tokenData + '.' + signature;
     res.json({ token });
 });
